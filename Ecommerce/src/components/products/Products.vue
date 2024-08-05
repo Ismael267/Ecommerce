@@ -22,16 +22,14 @@
   </div>
 </template>
 
+
+
 <script>
 import { collection, getDocs, query, orderBy, limit, startAfter, endBefore } from 'firebase/firestore';
 import db from '@/firebaseConfig';
-import AddToCart from '../AddToCart.vue'
-
-
+import AddToCart from '../AddToCart.vue';
 
 export default {
-
-
   components: {
     AddToCart
   },
@@ -51,7 +49,6 @@ export default {
   },
   methods: {
     async fetchProducts(direction) {
-
       let productsQuery; // Variable pour stocker la requête Firestore
 
       // Construire la requête en fonction de la direction (page suivante ou précédente)
@@ -99,19 +96,15 @@ export default {
       this.isFirstPage = false;
       this.fetchProducts('next'); // Récupère les produits de la page suivante
     },
+
     prevPage() {
       this.fetchProducts('prev'); // Récupère les produits de la page précédente
     },
-  },
-  //cart 
-
+  }
 };
-
-
-
-
-
 </script>
+
+
 <style>
 .entete {
   color: #fff;

@@ -5,21 +5,22 @@
       <div class="cart-items">
         <div v-for="item in cartItems" :key="item.id" class="cart-item">
           <div class="image">
-            <img :src="item.image || 'src/assets/imageonline-co-placeholder-image.jpg'" :alt="item.title">
+            <img
+              :src="item.image || 'src/assets/imageonline-co-placeholder-image.jpg'"
+              :alt="item.title"
+            />
           </div>
           <div class="item-details">
             <h2>{{ item.title }}</h2>
             <p>{{ item.price }}€</p>
-            <input type="number" v-model="item.quantity" min="1">
+            <input type="number" v-model.number="item.quantity" min="1" />
             <button @click="removeFromCart(item.id)" class="remove-btn">Supprimer</button>
           </div>
         </div>
       </div>
       <div class="cart-summary">
         <h2>Total: {{ total }}€</h2>
-        <router-link to="/checkout">
-          <button class="checkout-btn"  @click="Checkout">Passer à la caisse</button>
-        </router-link>
+        <button class="checkout-btn" @click="checkout">Passer à la caisse</button>
       </div>
     </div>
     <div v-else>
@@ -27,68 +28,92 @@
     </div>
   </div>
 </template>
+
 <script>
-import db from '@/firebaseConfig'; // Ensure correct db import
-import { collection, getDocs, query, where, doc, deleteDoc } from 'firebase/firestore';
+import db from '@/firebaseConfig'
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  deleteDoc,
+  addDoc,
+  Timestamp
+} from 'firebase/firestore'
 
 export default {
   data() {
     return {
-      cartItems: [], // Array to store cart items
-    };
+      cartItems: [] // tableau stocke les elements du panier
+    }
   },
   created() {
-    this.getCartItems(); // Fetch cart items on component creation
+    this.getCartItems() //
   },
   methods: {
     async getCartItems() {
-      let sessionId = localStorage.getItem('sessionId');
-      console.log(sessionId);
+      let sessionId = localStorage.getItem('sessionId')
+      console.log(sessionId)
       try {
-        // Query to fetch documents from 'carts' collection
-        const snapshotQuery = query(collection(db, "carts"), where("user_id", "==", sessionId));
-        const querySnapshot = await getDocs(snapshotQuery);
+        const snapshotQuery = query(collection(db, 'carts'), where('user_id', '==', sessionId))
+        const querySnapshot = await getDocs(snapshotQuery)
 
         if (!querySnapshot.empty) {
-          // Store cart items
-          this.cartItems = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          console.log(this.cartItems);
+          this.cartItems = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+          console.log(this.cartItems)
         } else {
-          console.log('No items found in the carts collection.');
+          console.log("pas d' items trouvé dans la collection")
         }
       } catch (error) {
-        console.error('Error fetching cart items:', error);
+        console.error('Erreur pendant la recuperation des items:', error)
       }
     },
     async removeFromCart(itemId) {
-      // Remove item from local cartItems array
-      this.cartItems = this.cartItems.filter(item => item.id !== itemId);
+      this.cartItems = this.cartItems.filter((item) => item.id !== itemId)
 
-      // Assuming each cart item is a separate document in the Firestore collection
       try {
-        const itemDocRef = doc(db, "carts", itemId);
-        await deleteDoc(itemDocRef);
-        console.log('Document successfully deleted from Firestore!');
+        const itemDocRef = doc(db, 'carts', itemId)
+        await deleteDoc(itemDocRef)
+        console.log('Document supprimé avec succès')
       } catch (error) {
-        console.error('Error removing document from Firestore: ', error);
+        console.error('erreur en supprimant le doc: ', error)
       }
     },
-    checkout(){
-      
+    async checkout() {
+      const userId = localStorage.getItem('sessionId')
+      const orderData = {
+        userId: userId,
+        total: this.total,
+        username: '',
+        addresse:"",
+        email:"",
+        items: this.cartItems.map((item) => ({
+          title: item.title,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image
+        }))
+      }
+      console.log(orderData)
+      try {
+        await addDoc(collection(db, 'order'), orderData)
+       this.$router.push('/checkout')
+        alert('Commande passée avec succès!')
+        this.cartItems = []
+      } catch (error) {
+        console.error('Erreur lors de la commande:', error)
+        alert('Erreur lors de la commande. Veuillez réessayer.')
+      }
     }
   },
   computed: {
     total() {
-      return this.cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+      return this.cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
     }
   }
 }
 </script>
-
-
-
-
-
 
 <style>
 .cart {
@@ -109,8 +134,6 @@ export default {
 .cart-items {
   border-bottom: 1px solid #ddd;
   padding-bottom: 20px;
-
-
 }
 
 .cart-item {
