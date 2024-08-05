@@ -5,31 +5,28 @@
 </template>
 
 <script>
-import { v4 as uuidv4 } from 'uuid';
-import db from '@/firebaseConfig';
-import { doc, setDoc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { v4 as uuidv4 } from 'uuid'; // Importation de la bibliothèque uuid pour générer des identifiants uniques
+import db from '@/firebaseConfig'; // Importation de la configuration Firebase
+import { doc, setDoc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore'; // Importation des fonctions Firestore nécessaires
 
 export default {
-
   data() {
     return {
-      quantity: 1,
-      
+      quantity: 1, // Quantité initiale du produit à ajouter au panier
     };
   },
   props: {
-    productId: String, 
-    productImage:String,
-    productTitle:String,
-    productPrice:String,
-    // Assure que productId est une chaîne de caractères
+    productId: String, // ID du produit
+    productImage: String, // Image du produit
+    productTitle: String, // Titre du produit
+    productPrice: String, // Prix du produit
   },
   methods: {
     generateSessionId() {
       // Génère un ID de session unique (à utiliser pour les invités)
       let sessionId = localStorage.getItem('sessionId');
       if (!sessionId) {
-        sessionId = uuidv4();
+        sessionId = uuidv4(); // Génère un nouvel ID si aucun ID de session n'existe
         localStorage.setItem('sessionId', sessionId);
       }
       return sessionId;
@@ -45,36 +42,36 @@ export default {
           updateDoc(cartRef, {
             quantity: docSnapshot.data().quantity + 1
           }).then(() => {
-            alert("Product quantity incremented")
-            console.log('Product quantity incremented');
+            alert("Quantité du produit incrémentée");
+            console.log('Quantité du produit incrémentée');
           }).catch(error => {
-            alert('Error updating cart: ', error)
-            console.error('Error updating cart: ', error);
+            alert('Erreur lors de la mise à jour du panier: ', error);
+            console.error('Erreur lors de la mise à jour du panier: ', error);
           });
         } else {
           // Créez un nouveau panier avec le produit et une quantité de 1
           setDoc(cartRef, {
-            title:this.productTitle,
-            image:this.productImage,
-            price:this.productPrice,
+            title: this.productTitle,
+            image: this.productImage,
+            price: this.productPrice,
             user_id: sessionId,
             quantity: this.quantity,
             createdAt: serverTimestamp(),
           }).then(() => {
-            
+            alert('Produit ajouté au panier');
           }).catch(error => {
-            alert('Error creating cart: ', error)
-            console.error('Error creating cart: ', error);
+            alert('Erreur lors de la création du panier: ', error);
+            console.error('Erreur lors de la création du panier: ', error);
           });
         }
       }).catch(error => {
-        
-        console.error('Error fetching cart: ', error);
+        console.error('Erreur lors de la récupération du panier: ', error);
       });
     }
   },
 };
 </script>
+
 
 
 

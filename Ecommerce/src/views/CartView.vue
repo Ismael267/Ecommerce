@@ -45,49 +45,57 @@ import {
 export default {
   data() {
     return {
-      cartItems: [] // tableau stocke les elements du panier
+      cartItems: [] // Tableau pour stocker les éléments du panier
     }
   },
+  // Appelé quand le composant est créé
   created() {
-    this.getCartItems() //
+    this.getCartItems() // Récupère les éléments du panier lors de la création du composant
   },
   methods: {
+    // Méthode pour récupérer les éléments du panier depuis Firestore
     async getCartItems() {
-      let sessionId = localStorage.getItem('sessionId')
+      let sessionId = localStorage.getItem('sessionId') // Obtient l'ID de session depuis le stockage local
       console.log(sessionId)
       try {
+        // Crée une requête pour récupérer les éléments du panier de l'utilisateur actuel
         const snapshotQuery = query(collection(db, 'carts'), where('user_id', '==', sessionId))
-        const querySnapshot = await getDocs(snapshotQuery)
+        const querySnapshot = await getDocs(snapshotQuery) // Exécute la requête
 
         if (!querySnapshot.empty) {
+          // Si des éléments sont trouvés, les stocke dans le tableau cartItems
           this.cartItems = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
           console.log(this.cartItems)
         } else {
-          console.log("pas d' items trouvé dans la collection")
+          console.log("Pas d'items trouvés dans la collection")
         }
       } catch (error) {
-        console.error('Erreur pendant la recuperation des items:', error)
+        // Gère les erreurs pendant la récupération des items
+        console.error('Erreur pendant la récupération des items:', error)
       }
     },
+    // Méthode pour supprimer un élément du panier
     async removeFromCart(itemId) {
-      this.cartItems = this.cartItems.filter((item) => item.id !== itemId)
+      this.cartItems = this.cartItems.filter((item) => item.id !== itemId) // Met à jour le tableau cartItems localement
 
       try {
-        const itemDocRef = doc(db, 'carts', itemId)
-        await deleteDoc(itemDocRef)
+        const itemDocRef = doc(db, 'carts', itemId) // Référence au document à supprimer
+        await deleteDoc(itemDocRef) // Supprime le document de Firestore
         console.log('Document supprimé avec succès')
       } catch (error) {
-        console.error('erreur en supprimant le doc: ', error)
+        // Gère les erreurs pendant la suppression du document
+        console.error('Erreur en supprimant le document:', error)
       }
     },
+    // Méthode pour passer la commande
     async checkout() {
-      const userId = localStorage.getItem('sessionId')
+      const userId = localStorage.getItem('sessionId') // Obtient l'ID de session depuis le stockage local
       const orderData = {
         userId: userId,
         total: this.total,
-        username: '',
-        addresse:"",
-        email:"",
+        username: '', // À compléter avec les informations utilisateur
+        addresse: "", // À compléter avec les informations utilisateur
+        email: "", // À compléter avec les informations utilisateur
         items: this.cartItems.map((item) => ({
           title: item.title,
           price: item.price,
@@ -97,23 +105,26 @@ export default {
       }
       console.log(orderData)
       try {
-        await addDoc(collection(db, 'order'), orderData)
-       this.$router.push('/checkout')
+        await addDoc(collection(db, 'order'), orderData) // Ajoute la commande à la collection 'order' de Firestore
+        this.$router.push('/checkout') // Redirige vers la page de checkout
         alert('Commande passée avec succès!')
-        this.cartItems = []
+        this.cartItems = [] // Vide le panier après avoir passé la commande
       } catch (error) {
+        // Gère les erreurs pendant la commande
         console.error('Erreur lors de la commande:', error)
         alert('Erreur lors de la commande. Veuillez réessayer.')
       }
     }
   },
   computed: {
+    // Propriété calculée pour obtenir le total du panier
     total() {
       return this.cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
     }
   }
 }
 </script>
+
 
 <style>
 .cart {

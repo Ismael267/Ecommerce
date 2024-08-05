@@ -51,58 +51,70 @@
   </template>
   
 
-<script>
-import db from '@/firebaseConfig'
-import {
-  collection,
-  getDocs,
-  query,
-  where
-} from 'firebase/firestore'
-
-export default {
-  data() {
-    return {
-      orders: []
-    }
-  },
-
-  created() {
-    this.fetchOrders()
-  },
+  <script>
+  import db from '@/firebaseConfig'
+  import {
+    collection,
+    getDocs,
+    query,
+    where
+  } from 'firebase/firestore'
   
-  computed: {
-    totalOrder() {
-      return this.orders.reduce((total, item) => total + (item.price * item.quantity), 0);
-    }
-  },
-  
-  methods: {
-    onSubmitOrder() {
-      // Logic to handle form submission
+  export default {
+    data() {
+      return {
+        orders: []  // Tableau pour stocker les commandes
+      }
     },
-
-    async fetchOrders() {
-      let sessionId = localStorage.getItem('sessionId')
-      console.log(sessionId)
-      try {
-        const snapshotQuery = query(collection(db, 'order'), where('userId', '==', sessionId))
-        const querySnapshot = await getDocs(snapshotQuery)
-
-        if (!querySnapshot.empty) {
-          this.orders = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-          console.log(this.orders)
-        } else {
-          console.log("Pas de commande trouvée dans la collection")
+  
+    // Appelé quand le composant est créé
+    created() {
+      this.fetchOrders()  // Récupère les commandes lors de la création du composant
+    },
+    
+    computed: {
+      // Propriété calculée pour obtenir le total de la commande
+      totalOrder() {
+        return this.orders.reduce((total, order) => {
+          // Calcule le total de chaque commande en parcourant les items
+          return total + order.items.reduce((orderTotal, item) => {
+            return orderTotal + (item.price * item.quantity);
+          }, 0);
+        }, 0);
+      }
+    },
+    
+    methods: {
+      // Méthode pour gérer la soumission du formulaire
+      onSubmitOrder() {
+        // Logique pour traiter la soumission du formulaire
+      },
+  
+      // Méthode pour récupérer les commandes depuis Firestore
+      async fetchOrders() {
+        let sessionId = localStorage.getItem('sessionId')  // Obtient l'ID de session depuis le stockage local
+        console.log(sessionId)
+        try {
+          // Crée une requête pour récupérer les commandes de l'utilisateur actuel
+          const snapshotQuery = query(collection(db, 'order'), where('userId', '==', sessionId))
+          const querySnapshot = await getDocs(snapshotQuery)  // Exécute la requête
+  
+          if (!querySnapshot.empty) {
+            // Si des commandes sont trouvées, les stocke dans le tableau orders
+            this.orders = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+            console.log(this.orders)
+          } else {
+            console.log("Pas de commande trouvée dans la collection")
+          }
+        } catch (error) {
+          // Gère les erreurs pendant la récupération des commandes
+          console.error('Erreur pendant la récupération des commandes:', error)
         }
-      } catch (error) {
-        console.error('Erreur pendant la récupération des commandes:', error)
       }
     }
   }
-}
-</script>
-
+  </script>
+  
 
 <style>
 .containerAZ {
