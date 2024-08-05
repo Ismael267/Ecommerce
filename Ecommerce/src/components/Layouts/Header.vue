@@ -6,13 +6,12 @@
 <template>
     <div class="container">
         <div class="logo">
-            <a href="#">Mon E-commerce</a>
+            <RouterLink to="/" >Mon E-commerce</RouterLink >
         </div>
         <nav class="nav">
             <RouterLink to="/" class="menu-link">Accueil</RouterLink>
-            <RouterLink to="/" class="menu-link">Produits</RouterLink>
-            <RouterLink to="/" class="menu-link">Promotions</RouterLink>
-            <RouterLink to="/" class="menu-link">Contact</RouterLink>
+            <RouterLink to="/cart" class="menu-link">Panier</RouterLink>
+            <RouterLink to="/" class="link-button"><button type="button">Admin</button></RouterLink>           
         </nav>
         <button class="menu-toggle">☰</button>
     </div>
@@ -20,20 +19,30 @@
 
 <style>
 
+.link-button button{
+background-color: #fff;
+padding: 2px 20px;
+border: none;
+border-radius: 5px;
+font-family: "inter";
+font-weight: 900;
+font-size:15px;
 
-body {
-    margin: 0;
-    font-family: 'inter', sans-serif;
+
+}
+.link-button button:hover{
+    transform: scale(0.96)
 }
 
 header {
     background-color: #333;
     color: #fff;
-    padding: 10px 20px;
+    padding: 10px 0px;
     width: 100%
 }
 
 .container {
+    max-width: 1200px;
     display: flex;
     justify-content: space-between;
     align-items: center;

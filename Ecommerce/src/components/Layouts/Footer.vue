@@ -38,22 +38,13 @@
 <style>
 /* styles.css */
 
-body {
-    margin: 0;
-  
-    display: flex;
-    flex-direction: column;
-    
-    
-}
 
 footer {
    
-    padding: 10px;
+    margin-top: auto;
     background-color: #333;
     color: #fff;
-    margin-top: 100% ;
-    
+    justify-content: space-between;
     
     
 }
@@ -62,8 +53,8 @@ footer {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-   
-    
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .footer-section {
