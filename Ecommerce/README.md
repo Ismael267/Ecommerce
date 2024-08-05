@@ -1,6 +1,6 @@
 # Ecommerce
 
-This template should help get you started developing with Vue 3 in Vite.
+tout les elementsdependances de firebase sont dans le fichier firebaseConfig.js
 
 ## Recommended IDE Setup
 
